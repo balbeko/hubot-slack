@@ -28,6 +28,27 @@ class Slack extends Adapter
         link_names : @options.link_names
 
       @post "/services/hooks/hubot", args
+  
+  custom: (params, objects...)->
+    @log "Sending custom message"
+    @user = @userFromParams params
+
+    objects.forEach (obj) =>
+      if obj.type = 'slack-attachment' and obj.content?
+        attachments = []
+        attachments.push 
+          text     : @escapeHtml obj.content.text
+          fallback : @escapeHtml obj.content.fallback
+          pretext  : @escapeHtml obj.content.pretext
+          color    : obj.content.color
+          fields   : obj.content.fields
+
+        args = JSON.stringify
+          username    : @robot.name
+          channel     : user.reply_to
+          attachments : attachments 
+          link_names  : @options.link_names
+        @post "/services/hooks/hubot", args
 
   reply: (params, strings...) ->
     @log "Sending reply"
